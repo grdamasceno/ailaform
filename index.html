@@ -293,6 +293,42 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+    
+        /* Badge do ID - Visual Feedback */
+        .id-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-top: 15px;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+        }
+
+        .id-badge.hidden {
+            display: none;
+        }
+
+        /* Alertas para ID */
+        .alert-warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            color: #856404;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            color: #0c5460;
+        }
+
     </style>
 </head>
 <body>
@@ -300,6 +336,10 @@
         <div class="header">
             <h1>🚀 BEM-VINDO À AILA</h1>
             <p>Inteligência Artificial para impulsionar suas vendas</p>
+            <!-- Badge do ID - aparece quando ID é capturado -->
+            <div class="id-badge hidden" id="idBadge">
+                📋 ID: <span id="idDisplay"></span>
+            </div>
         </div>
 
         <div class="progress-bar">
@@ -307,7 +347,21 @@
         </div>
 
         <div class="form-content">
+            
+            <!-- Alerta quando ID não é encontrado -->
+            <div class="alert-warning" id="noIdWarning" style="display: none;">
+                <strong>⚠️ Atenção:</strong> Nenhum ID foi detectado na URL. O formulário funcionará normalmente, mas não será possível identificar automaticamente quem preencheu.
+            </div>
+
+            <!-- Alerta quando ID é detectado -->
+            <div class="alert-info" id="idDetectedInfo" style="display: none;">
+                <strong>✓ ID Detectado:</strong> Seu formulário foi identificado com o código <strong id="idInfoDisplay"></strong>. Continue preenchendo normalmente.
+            </div>
+
             <form id="ailaForm">
+                <!-- Campo oculto para armazenar o ID -->
+                <input type="hidden" name="tracking_id" id="trackingId" value="">
+                
                 
                 <!-- SEÇÃO 1: DADOS DA EMPRESA -->
                 <div class="section active" data-section="1">
@@ -923,6 +977,36 @@
     </div>
 
     <script>
+
+        // ==========================================
+        // CAPTURA O ID DA URL AUTOMATICAMENTE
+        // ==========================================
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Executa quando a página carrega
+        window.addEventListener('DOMContentLoaded', function() {
+            const trackingId = getUrlParameter('id');
+            
+            if (trackingId) {
+                // ID encontrado na URL
+                document.getElementById('trackingId').value = trackingId;
+                document.getElementById('idDisplay').textContent = trackingId;
+                document.getElementById('idInfoDisplay').textContent = trackingId;
+                document.getElementById('idBadge').classList.remove('hidden');
+                document.getElementById('idDetectedInfo').style.display = 'block';
+                
+                console.log('✓ ID capturado:', trackingId);
+            } else {
+                // ID não encontrado
+                document.getElementById('noIdWarning').style.display = 'block';
+                console.warn('⚠️ Nenhum ID foi detectado na URL');
+            }
+        });
+
+        // ==========================================
         let currentSection = 1;
         const totalSections = 7;
 
@@ -1045,7 +1129,7 @@
 
             try {
                 // SUBSTITUA ESTA URL PELA SUA URL DO WEBHOOK N8N
-                const webhookURL = 'https://n8n-fazeria.tangerinefood.com.br/webhook/aila-onboarding';
+                const webhookURL = 'https://SEU-N8N-WEBHOOK-URL-AQUI/aila-onboarding';
                 
                 const response = await fetch(webhookURL, {
                     method: 'POST',
@@ -1088,5 +1172,6 @@
         // Inicializar
         updateProgress();
     </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"9cee4515d8d50301","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"version":"2025.9.1","token":"4edd5f8ec12a48cfa682ab8261b80a79"}' crossorigin="anonymous"></script>
 </body>
 </html>
